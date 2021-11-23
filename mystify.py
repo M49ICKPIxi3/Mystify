@@ -8,18 +8,6 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 import json
 
-"""
-Takes a string and filters out everything but alphanumeric characters.
-"""
-
-# Someone somewhere probably wants a cooler filename, this is V where V you V do that...
-def filter_arb(_string):
-    return ''.join(ch for ch in _string if ch.isalpha() or ch in ['.', '-', '_'])  # Here
-
-import subprocess
-import os
-import sys
-
 third_party_libraries = [
     'git+https://github.com/goodmami/wn'
 ]
@@ -32,105 +20,6 @@ def pip_install(mod):
 def get_user_site():
     output = subprocess.getoutput('python3.8 -m site')
     print(output)
-
-
-class MystifyRunnerCommand(sublime_plugin.TextCommand):
-    def run(self, edit):
-        self.edit = edit
-        self.view.window().show_input_panel('Run:', '', self.on_done, None, None)
-
-    def on_done(self, text):
-        try:
-            print(str(subprocess.getoutput(text)))
-        except Exception as e:
-            print(e.args)
-
-
-
-
-"""
-try:
-    import pexpect
-except:
-    pip_install('pexpect')
-    import pexpect"""
-
-
-"""
-Allows user input a string. Filters out everything but alphanumeric, dashes, and underscores.
-"""
-class AddModelCommand(sublime_plugin.TextCommand):
-    def run(self, edit):
-        self.edit = edit
-        self.view.window().show_input_panel('Model:', '', self.on_done, None, None)
-
-    def on_done(self, text):
-        settings_data = read_json(CURRENT_DIR + '/mystify.sublime-settings')
-        try:
-            settings_data['models'].append(text)
-        except Exception as e:
-            print(e.args)
-
-        # TODO: Create all the default engine parameters. Have a settings thing where you can turn models on or off
-        # TODO: Set default generator. Then the Generate command won't require the user to constantly switch models.
-
-
-        # create new fine-tuned model from template. This will always be a model parameter, presets saved a bit diff.
-        # Low on priority list: presets.
-
-        
-
-
-class FilterCommand(sublime_plugin.TextCommand):
-    def run(self, edit, text=""):
-        if not text: return
-
-        view = self.view
-
-        newSelections = []
-
-        for selection in view.sel():
-            lines = view.lines(selection)
-
-            newSelections += [sublime.Region(view.full_line(line).begin(), view.full_line(line).end()) for line in lines]
-
-            newSelections += [sublime.Region(view.full_line(line).end(), line) for line in lines]
-
-            newSelections += [sublime.Region(line, view.full_line(line).begin()) for line in lines]
-
-            newSelections += [sublime.Region((view.full_line)(line).begin(), line) for line in lines]
-
-        view.sel().clear()
-        [view.sel().add(region) for region in newSelections]
-
-
-
-
-
-
-
-
-class OpenFileFromListCommand(sublime_plugin.TextCommand):
-    def run(self, edit):
-        self.files = []
-        self.view.window().show_quick_panel(self.files, self.open_file)
-
-    def open_file(self, index):
-        if index == -1:
-            return
-
-        file = self.files[index]
-
-        if os.path.isfile(file):
-            self.view.window().open_file(file)
-
-
-
-
-
-
-
-
 
 
 
@@ -159,9 +48,6 @@ def write_json(path, data):
 # How to do this: command to edit the settings for a model, open the settings file in a new scratch window and
 # allow the user to fill it in, save it
 
-
-
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 MYSTIFY_LIBRARY_PATH = CURRENT_DIR + '/lib'
 SITE_PACKAGES_DIR = '/Users/saya/.pyenv/versions/3.8.0/lib/python3.8/site-packages'
 
@@ -180,20 +66,11 @@ CONTEXT_MENU_PATH = CONTEXT_MENU_DIR + '/Context.sublime-menu'
 if not os.path.exists(CONTEXT_MENU_DIR):
     os.makedirs(CONTEXT_MENU_DIR)
 
-
-
 from lib.context_menu import ContextMenuBuilder
 from lib.wordnet_api import WordnetApi
-
+# TODO: add phonetics support for rhyming
 
 from typing import List
-# import pysnooper
-
-import inspect
-
-#inspect.getmembers(sublime)
-
-
 
 class ReplaceWordCommand(sublime_plugin.TextCommand):
     def run(self, edit, new_text):
@@ -204,8 +81,8 @@ class ReplaceWordCommand(sublime_plugin.TextCommand):
 
 class DoNothingCommand(sublime_plugin.TextCommand):
     def run(self, edit):
+        # TODO: Surely there's a better way to do this...
         print('nothing!')
-
 
 
 # TO LOG COMMANDS: sublime.log_input(True); sublime.log_commands(True); sublime.log_result_regex(True)
@@ -232,14 +109,8 @@ class EventListener(sublime_plugin.EventListener):
     def on_post_text_command(self, view, command, args):
         if command == "context_menu":
             pass
-            #if os.path.exists(CONTEXT_MENU_PATH):
-            #    os.remove(CONTEXT_MENU_PATH)
-
-    def _on_generate(self, view: sublime.View, command: sublime_plugin.TextCommand, args):
-        content = EventListener.get_selected(view, args['event'])
-        view.run_command('generate_from_selection')
-
-
+            if os.path.exists(CONTEXT_MENU_PATH):
+                os.remove(CONTEXT_MENU_PATH)
 
     def on_text_command(self, view, command, args):
         if command == 'context_menu':
@@ -247,7 +118,7 @@ class EventListener(sublime_plugin.EventListener):
 
             content = EventListener.get_selected(view, args['event'])
             if content is None:
-                return #(self.plugin_event_name, 'no selected text')
+                return
 
             # TODO: Implement top level caching if necessary. LRU cache in
             #       wordnet_api should do this...
@@ -331,5 +202,3 @@ class EventListener(sublime_plugin.EventListener):
             )
 
             print('it worked!')
-            #return (self.plugin_event_name, 'command successful!')
-
