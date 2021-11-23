@@ -1,0 +1,6 @@
+.idea/
+.idea/*
+generated_plugin_code.txt
+_sublime/
+_sublime/*
+copy_to_packages.py
