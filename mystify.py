@@ -2,81 +2,60 @@ import sys
 import os
 import sublime_plugin
 import sublime
-from collections import defaultdict
-
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-
-import json
-
-third_party_libraries = [
-    'git+https://github.com/goodmami/wn'
-]
-
-wn_library = 'git+https://github.com/goodmami/wn'
-
-def pip_install(mod):
-    print(str(subprocess.check_output(f'pip3.8 install {mod}', shell=True)))
-
-def get_user_site():
-    output = subprocess.getoutput('python3.8 -m site')
-    print(output)
 
 
 
-def read_text(path):
-    with open(path, errors="replace") as file:
-        text = file.read()
-    return text
 
 
-def write_text(path, output):
-    with open(path, 'w+') as file:
-        file.write(output)
-
-
-def read_json(path):
-    with open(path) as data_file:
-        json_data = json.load(data_file)
-    return json_data
-
-
-def write_json(path, data):
-    with open(path, 'w+') as outfile:
-        json.dump(data, outfile, sort_keys=False, indent=4, separators=(',', ': '), ensure_ascii=False)
+def append_sys_path(paths):
+    for path in paths:
+        if path not in sys.path:
+            sys.path.append(path)
 
 
 # How to do this: command to edit the settings for a model, open the settings file in a new scratch window and
 # allow the user to fill it in, save it
 
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 MYSTIFY_LIBRARY_PATH = CURRENT_DIR + '/lib'
+
+current_directory = os.path.join(sublime.packages_path(), 'mystify')
+_library_directory = os.path.join(sublime.packages_path(), 'mystify', 'lib')
+
 SITE_PACKAGES_DIR = '/Users/saya/.pyenv/versions/3.8.0/lib/python3.8/site-packages'
 
-os.environ["PYTHONPACKAGES"] = SITE_PACKAGES_DIR
+#os.environ["PYTHONPACKAGES"] = SITE_PACKAGES_DIR
 
 CONTEXT_MENU_DIR = os.path.join(sublime.packages_path(), 'User', 'mystify')
 
+if _library_directory not in sys.path:
+    sys.path.append(_library_directory)
 
-sys.path.append(MYSTIFY_LIBRARY_PATH)
-sys.path.append(CURRENT_DIR)
-sys.path.append(os.environ['PYTHONPACKAGES'])
+if _current_directory not in sys.path:
+    sys.path.append(_current_directory)
+
+if os.getenv('PYTHONPACKAGES') not in sys.path:
+    sys.path.append(os.environ['PYTHONPACKAGES'])
+
+append_sys_path([
+
+])
+
+from lib.wordnet_api import WordnetApi
+from lib.rhymes import RhymingApi
+from lib.context_menu_builder import ContextMenuBuilder
+
+from collections import defaultdict
 
 CONTEXT_MENU_PATH = CONTEXT_MENU_DIR + '/Context.sublime-menu'
 
-
 if not os.path.exists(CONTEXT_MENU_DIR):
     os.makedirs(CONTEXT_MENU_DIR)
-
-from lib.context_menu import ContextMenuBuilder
-from lib.wordnet_api import WordnetApi
-# TODO: add phonetics support for rhyming
-
-from typing import List
 
 class ReplaceWordCommand(sublime_plugin.TextCommand):
     def run(self, edit, new_text):
         for region in self.view.sel():
             if not region.empty():
-
                 self.view.replace(edit, region, new_text)
 
 class DoNothingCommand(sublime_plugin.TextCommand):
@@ -88,6 +67,7 @@ class DoNothingCommand(sublime_plugin.TextCommand):
 # TO LOG COMMANDS: sublime.log_input(True); sublime.log_commands(True); sublime.log_result_regex(True)
 class EventListener(sublime_plugin.EventListener):
     wordnet_api = WordnetApi()
+    rhyming_api = RhymingApi()
     simple_cache_synsets = {}
     simple_cache_relations = {}
 
@@ -112,9 +92,9 @@ class EventListener(sublime_plugin.EventListener):
             if os.path.exists(CONTEXT_MENU_PATH):
                 os.remove(CONTEXT_MENU_PATH)
 
+
     def on_text_command(self, view, command, args):
         if command == 'context_menu':
-            pip_install(wn_library)
 
             content = EventListener.get_selected(view, args['event'])
             if content is None:
@@ -191,10 +171,23 @@ class EventListener(sublime_plugin.EventListener):
                             }
                         )
                         rel_type_submenu['children'].append(rel_word_command)
-
                     relations_menu['children'].append(rel_type_submenu)
-
                 context_menu_entries.append(relations_menu)
+
+            rhymes = self.rhyming_api.get_rhymes_for_word(content)
+            if len(rhymes) > 0:
+                rhymes_caption = 'rhymes'
+                rhymes_menu_id = 'rhymes'
+                rhymes_menu = ContextMenuBuilder.build_menu_or_submenu(rhymes_caption, rhymes_menu_id)
+                for rhyme in rhymes:
+                    word_command = ContextMenuBuilder.build_command_entry(
+                        caption=rhyme,
+                        command='do_nothing'
+                    )
+                    rhymes_menu['children'].append(word_command)
+
+                print('added rhymes!')
+                context_menu_entries.append(rhymes_menu)
 
             ContextMenuBuilder.append_context_menu(
                 context_menu_entries=context_menu_entries,

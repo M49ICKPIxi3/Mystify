@@ -1,6 +1,26 @@
 import json
-import os
-from os.path import join, exists
+
+
+def read_text(path):
+    with open(path, errors="replace") as file:
+        text = file.read()
+    return text
+
+
+def write_text(path, output):
+    with open(path, 'w+') as file:
+        file.write(output)
+
+
+def read_json(path):
+    with open(path) as data_file:
+        json_data = json.load(data_file)
+    return json_data
+
+
+def write_json(path, data):
+    with open(path, 'w+') as outfile:
+        json.dump(data, outfile, sort_keys=False, indent=4, separators=(',', ': '), ensure_ascii=False)
 
 """
 Api of this is like:
@@ -102,9 +122,7 @@ class ContextMenuBuilder(object):
             json.dump(context_menu_entries, config_file, indent=4, sort_keys=False)
 
 
-from wordnet_api import WordnetApi
-from collections import defaultdict
-
+"""
 def main():
     current_dir = os.getcwd()
     parent_dir = '/'.join(current_dir.split('/')[:-1])
@@ -199,7 +217,7 @@ def main():
 
 if __name__ == '__main__':
     main()
-
+"""
 
 """
 # submenu_desc is a tuple.

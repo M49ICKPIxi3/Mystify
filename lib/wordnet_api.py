@@ -8,7 +8,6 @@ from wn.morphy import Morphy
 import json
 
 from collections import defaultdict
-#import pronouncing
 
 
 class SingletonOptmizedOptmized(type):
