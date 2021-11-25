@@ -116,10 +116,10 @@ class ContextMenuBuilder(object):
             }
 
 
-    @staticmethod
+    """@staticmethod
     def append_context_menu(context_menu_entries, file_path):
         with open(file_path, 'w+') as config_file:
-            json.dump(context_menu_entries, config_file, indent=4, sort_keys=False)
+            json.dump(context_menu_entries, config_file, indent=4, sort_keys=False)"""
 
 
 """

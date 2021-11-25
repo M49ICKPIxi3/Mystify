@@ -3,54 +3,35 @@ import os
 import sublime_plugin
 import sublime
 
-
-
-
-
 def append_sys_path(paths):
     for path in paths:
         if path not in sys.path:
             sys.path.append(path)
 
 
-# How to do this: command to edit the settings for a model, open the settings file in a new scratch window and
-# allow the user to fill it in, save it
-
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-MYSTIFY_LIBRARY_PATH = CURRENT_DIR + '/lib'
-
-current_directory = os.path.join(sublime.packages_path(), 'mystify')
-_library_directory = os.path.join(sublime.packages_path(), 'mystify', 'lib')
-
-SITE_PACKAGES_DIR = '/Users/saya/.pyenv/versions/3.8.0/lib/python3.8/site-packages'
-
-#os.environ["PYTHONPACKAGES"] = SITE_PACKAGES_DIR
-
+MYSTIFY_LIBRARY_PATH = os.path.join(CURRENT_DIR, 'lib')
+ST_USER_SITE_PACKAGES = os.getenv('ST_USER_SITE_PACKAGES')
 CONTEXT_MENU_DIR = os.path.join(sublime.packages_path(), 'User', 'mystify')
-
-if _library_directory not in sys.path:
-    sys.path.append(_library_directory)
-
-if _current_directory not in sys.path:
-    sys.path.append(_current_directory)
-
-if os.getenv('PYTHONPACKAGES') not in sys.path:
-    sys.path.append(os.environ['PYTHONPACKAGES'])
+CONTEXT_MENU_PATH = os.path.join(CONTEXT_MENU_DIR, 'Context.sublime-menu')
 
 append_sys_path([
-
+    #MYSTIFY_LIBRARY_PATH,
+    #CURRENT_DIR,
+    ST_USER_SITE_PACKAGES
 ])
 
-from lib.wordnet_api import WordnetApi
-from lib.rhymes import RhymingApi
-from lib.context_menu_builder import ContextMenuBuilder
+from .lib.wordnet_api import WordnetApi
+from .lib.rhymes import RhymingApi
+from .lib.context_menu_builder import ContextMenuBuilder
 
 from collections import defaultdict
+import json
 
-CONTEXT_MENU_PATH = CONTEXT_MENU_DIR + '/Context.sublime-menu'
 
 if not os.path.exists(CONTEXT_MENU_DIR):
     os.makedirs(CONTEXT_MENU_DIR)
+
 
 class ReplaceWordCommand(sublime_plugin.TextCommand):
     def run(self, edit, new_text):
@@ -89,8 +70,8 @@ class EventListener(sublime_plugin.EventListener):
     def on_post_text_command(self, view, command, args):
         if command == "context_menu":
             pass
-            if os.path.exists(CONTEXT_MENU_PATH):
-                os.remove(CONTEXT_MENU_PATH)
+            #if os.path.exists(CONTEXT_MENU_PATH):
+            #    os.remove(CONTEXT_MENU_PATH)
 
 
     def on_text_command(self, view, command, args):
@@ -189,9 +170,7 @@ class EventListener(sublime_plugin.EventListener):
                 print('added rhymes!')
                 context_menu_entries.append(rhymes_menu)
 
-            ContextMenuBuilder.append_context_menu(
-                context_menu_entries=context_menu_entries,
-                file_path=CONTEXT_MENU_PATH
-            )
+            with open(CONTEXT_MENU_PATH, 'w+') as config_file:
+                json.dump(context_menu_entries, config_file, indent=4, sort_keys=False)
 
             print('it worked!')
