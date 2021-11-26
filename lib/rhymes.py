@@ -1,7 +1,7 @@
-# import phonetics
 import pronouncing
 
 import math
+import random
 
 
 def word_similarity(word_a, word_b):
@@ -70,10 +70,10 @@ def least_similar(words, word):
 class RhymingApi(object):
     num_rhymes = 10
 
-    def get_rhymes_for_word(self, word):
+    def get_rhymes_for_word(self, word, num_rhymes=10):
         # TODO: Use a modified similarity metric to find the most diverse set of rhymes
         rhymes = set(pronouncing.rhymes(word)) # For now, using a random selection of rhymes
-        return list(rhymes)[:self.num_rhymes]  # Returns an empty list
+        return random.choices(list(rhymes),k=num_rhymes)  # Returns an empty list
 
 
 
