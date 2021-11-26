@@ -5,10 +5,9 @@ WordNet and Rhyming for Sublime Text
 
 Right click a highlighted word.
 
-### CompletionUsing:
-![screen_shot_1](https://user-images.githubusercontent.com/43641857/142745626-6a263c55-047b-408f-8d3f-9e1914b6b1f5.png)
-![screen_shot_2](https://user-images.githubusercontent.com/43641857/142745631-0fdd3293-5059-4df6-99b6-d5945334c60d.png)
-![screen_shot_3](https://user-images.githubusercontent.com/43641857/142745633-4986569f-d1bb-4438-a4c6-42fe86dc4d17.png)
+
+![mystify](https://user-images.githubusercontent.com/43641857/143511014-88f510c4-8e17-4884-8ea2-0de925460fb0.png)
+
 
 ## Installation
 Navigate to the packages folder for sublime text:
