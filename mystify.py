@@ -11,14 +11,14 @@ def append_sys_path(paths):
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 MYSTIFY_LIBRARY_PATH = os.path.join(CURRENT_DIR, 'lib')
-ST_USER_SITE_PACKAGES = os.getenv('ST_USER_SITE_PACKAGES')
+MYSTIFY_LIBRARY_WN_PATH = os.path.join(CURRENT_DIR, 'lib', 'wn')
 CONTEXT_MENU_DIR = os.path.join(sublime.packages_path(), 'User', 'mystify')
 CONTEXT_MENU_PATH = os.path.join(CONTEXT_MENU_DIR, 'Context.sublime-menu')
 
 append_sys_path([
-    #MYSTIFY_LIBRARY_PATH,
-    #CURRENT_DIR,
-    ST_USER_SITE_PACKAGES
+    MYSTIFY_LIBRARY_PATH,
+    MYSTIFY_LIBRARY_WN_PATH,
+    CURRENT_DIR
 ])
 
 from .lib.wordnet_api import WordnetApi
@@ -45,10 +45,20 @@ class DoNothingCommand(sublime_plugin.TextCommand):
         print('nothing!')
 
 
+try:
+    wordnet_api = WordnetApi()
+except Exception as e:
+    print(e.args)
+    # TODO: Prompt user to install database!!
+    # python -m wn download oewn:2021
+    # python -m wn download own-en:1.0.0
+
+
+rhyming_api = RhymingApi()
+
 # TO LOG COMMANDS: sublime.log_input(True); sublime.log_commands(True); sublime.log_result_regex(True)
 class EventListener(sublime_plugin.EventListener):
-    wordnet_api = WordnetApi()
-    rhyming_api = RhymingApi()
+
     simple_cache_synsets = {}
     simple_cache_relations = {}
 
@@ -88,7 +98,7 @@ class EventListener(sublime_plugin.EventListener):
                 #wn_text_data = self.wordnet_api.get_data_for_text(content)
                 #self.simple_cache_synsets[content] = wn_text_data
 
-            text_data = self.wordnet_api.get_data_for_text(content)
+            text_data = wordnet_api.get_data_for_text(content)
 
             synsets_caption = 'synset'
             synsets_menu_id = 'synset'
@@ -129,7 +139,7 @@ class EventListener(sublime_plugin.EventListener):
                         pos_submenu['children'].append(word_command)
                     definitions_menu['children'].append(pos_submenu)
 
-                print('got definitions')
+                # print('got definitions')
                 context_menu_entries.append(definitions_menu)
 
             if len(text_data['relations'].keys()) > 0:
@@ -155,7 +165,7 @@ class EventListener(sublime_plugin.EventListener):
                     relations_menu['children'].append(rel_type_submenu)
                 context_menu_entries.append(relations_menu)
 
-            rhymes = self.rhyming_api.get_rhymes_for_word(content)
+            rhymes = rhyming_api.get_rhymes_for_word(content)
             if len(rhymes) > 0:
                 rhymes_caption = 'rhymes'
                 rhymes_menu_id = 'rhymes'
@@ -167,10 +177,10 @@ class EventListener(sublime_plugin.EventListener):
                     )
                     rhymes_menu['children'].append(word_command)
 
-                print('added rhymes!')
+                # print('added rhymes!')
                 context_menu_entries.append(rhymes_menu)
 
             with open(CONTEXT_MENU_PATH, 'w+') as config_file:
                 json.dump(context_menu_entries, config_file, indent=4, sort_keys=False)
 
-            print('it worked!')
+            # print('it worked!')
