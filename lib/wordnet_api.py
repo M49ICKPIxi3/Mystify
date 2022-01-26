@@ -62,7 +62,7 @@ printable_part_of_speech = {
 class WordnetApi(metaclass=SingletonOptmizedOptmized):
 
     def __init__(self, lang = "en"):
-        self.__wn = Wordnet(lexicon='ewn', lang=lang)
+        self.__wn = Wordnet('oewn:2021')
         self.__morphy = Morphy(self.__wn)
         self.__wn.lemmatizer = self.__morphy
         # self.__ic = wn.ic.load('~/nltk_data/corpora/wordnet_ic/ic-brown-add1.dat', self.__wn)
@@ -79,12 +79,15 @@ class WordnetApi(metaclass=SingletonOptmizedOptmized):
                     # output[synset.pos].add(lemma)
                     output.add(lemma)
                 except Exception as ee:
+                    print('THREW EXCEPTION LINE 82 WORDNET_API')
                     print(ee)
                 try:
                     for word in synset.words():
                         # output[synset.pos].add(word.lemma())
                         output.add(word.lemma())
                 except Exception as e:
+                    print('THREW EXCEPTION LINE 89 WORDNET_API')
+
                     print(e)
 
         return output

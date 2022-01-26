@@ -1,16 +1,20 @@
 # Mystify
-WordNet and Rhyming for Sublime Text
+WordNet Thesaurus and Rhyming for Sublime Text
 
 ## Usage
 
-Right click a highlighted word.
+Highlight a word and right click. You can either view Definitions or select a word in one of the submenus to use as a replacement.
 
 
 ![mystify](https://user-images.githubusercontent.com/43641857/143511014-88f510c4-8e17-4884-8ea2-0de925460fb0.png)
 
 
 ## Installation
-Navigate to the packages folder for sublime text:
+Navigate to the Packages folder for Sublime Text:
+
+  `cd ~/Library/Application\ Support/Sublime\ Text\ 3/Packages`
+
+Clone the repository.
 
   `git clone https://github.com/M49ICKPIxi3/mystify.git`
 
@@ -21,13 +25,13 @@ From the [wn library](https://github.com/goodmami/wn) installation instructions:
   python -m wn download oewn:2021
   ```
 
-Next, find the 'site-packages' directory of your local python installation. For example: `~/.pyenv/versions/3.8.0/lib/python3.8/site-packages`
+Restart Sublime Text.
 
-Export the site-packages path to ST_USER_SITE_PACKAGES. This allows Sublime to add the site-packages to sys.path at runtime. Also works with the [Fountain](https://github.com/M49ICKPIxi3/Fountain) text generation plugin too.
+Deployment on Package Control is upcoming. Until then, you have to download the repo into the Packages directory. 
+The version of python used to download the WordNet data doesn't matter, you just need to have the data on
+your machine for Mystify to be able to use it. Interface for additional WordNets also upcoming.
 
-  `export ST_USER_SITE_PACKAGES="path/to/your/site-packages"`
+#### Credits:
+WordNet's integration uses [wn](https://github.com/goodmami/wn).
 
-Restart Sublime Text and that's it!
-
-Note: If you are running Sublime Text from a terminal don't forget to run `source .zshrc` for the shell you're using.
-
+Rhyming feature makes use of [pronouncing](https://github.com/aparrish/pronouncingpy).
