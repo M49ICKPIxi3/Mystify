@@ -5,3 +5,4 @@ _sublime/
 _sublime/*
 copy_to_packages.py
 venv
+.DS_STORE
