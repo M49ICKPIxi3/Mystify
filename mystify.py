@@ -48,7 +48,10 @@ class DoNothingCommand(sublime_plugin.TextCommand):
 try:
     wordnet_api = WordnetApi()
 except Exception as e:
-    print(e.args)
+    print('Error Mystify - Install WordNet Database!!!')
+    print('Run: python -m wn download oewn:2021 && python -m wn download own-en:1.0.0')
+    print('Then restart. Thanks and enjoy!')
+    print(f'Debugging: {e.args}')
     # TODO: Prompt user to install database!!
     # python -m wn download oewn:2021
     # python -m wn download own-en:1.0.0
@@ -119,7 +122,7 @@ class EventListener(sublime_plugin.EventListener):
             # Adding Synsets Menu
             context_menu_entries = [synset_menu]
 
-            print('before definitions')
+            # print('before definitions')
             if text_data['definitions'] is not None:
                 definitions_caption = 'definition'
                 definitions_menu_id = 'definition'
