@@ -73,7 +73,12 @@ class RhymingApi(object):
     def get_rhymes_for_word(self, word, num_rhymes=10):
         # TODO: Use a modified similarity metric to find the most diverse set of rhymes
         rhymes = set(pronouncing.rhymes(word)) # For now, using a random selection of rhymes
-        return random.choices(list(rhymes),k=num_rhymes)  # Returns an empty list
+        if len(rhymes) == 0:
+            return []
+        elif len(rhymes) < num_rhymes:
+            return list(rhymes)
+        else:
+            return random.choices(list(rhymes), k=num_rhymes)
 
 
 
